@@ -59,6 +59,11 @@ public class ControlHandler {
     }
   }
 
+  /**
+   * Parse the control file contents and update the {@link PackageEntry}.
+   * 
+   * @param packageEntry
+   */
   public void handle(PackageEntry packageEntry) {
     parseControl(packageEntry);
   }

@@ -28,6 +28,15 @@ import org.apache.maven.plugin.MojoExecutionException;
  * 
  */
 public class Utils {
+
+  /**
+   * Compute the given message digest for a file.
+   * 
+   * @param hashType algorithm to be used (as {@code String})
+   * @param file File to compute the digest for (as {@code File}).
+   * @return A {@code String} for the hex encoded digest.
+   * @throws MojoExecutionException
+   */
   public static String getDigest(String hashType, File file) throws MojoExecutionException {
     try {
       FileInputStream fis = new FileInputStream(file);
@@ -51,6 +60,13 @@ public class Utils {
     }
   }
 
+  /**
+   * Compute md5, sha1, sha256 message digest for a file.
+   * 
+   * @param file File to compute the digest for (as {@code File}).
+   * @return {@link DefaultHashes} with the computed digests.
+   * @throws MojoExecutionException
+   */
   public static DefaultHashes getDefaultDigests(File file) throws MojoExecutionException {
     DefaultHashes h = new DefaultHashes();
       for (Hashes hash : Hashes.values()) {
