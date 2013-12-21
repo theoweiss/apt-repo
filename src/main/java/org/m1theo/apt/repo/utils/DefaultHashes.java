@@ -8,6 +8,13 @@
 
 package org.m1theo.apt.repo.utils;
 
+/**
+ * A container for commonly used hashes.
+ * 
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
+ */
 public class DefaultHashes {
   private String md5;
   private String sha1;

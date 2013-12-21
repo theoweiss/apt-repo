@@ -8,6 +8,13 @@
 
 package org.m1theo.apt.repo.packages;
 
+/**
+ * Represents an entry in the Packages file.
+ * 
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
+ */
 public class PackageEntry {
   private String packageName;
   private String version;

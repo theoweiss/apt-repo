@@ -10,16 +10,18 @@ package org.m1theo.apt.repo.utils;
 
 import org.m1theo.apt.repo.packages.PackageEntry;
 
+/**
+ * Parses the control file.
+ * 
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
+ */
 public class ControlHandler {
-  String controlContent;
-  String md5sumContent;
+  private String controlContent;
 
   public void setControlContent(String controlContent) {
     this.controlContent = controlContent.trim();
-  }
-
-  public void setMd5sumContent(String md5sumContent) {
-    this.md5sumContent = md5sumContent.trim();
   }
 
   private void parseControl(PackageEntry packageEntry) {

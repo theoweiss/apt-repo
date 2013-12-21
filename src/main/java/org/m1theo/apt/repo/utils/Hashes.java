@@ -8,6 +8,13 @@
 
 package org.m1theo.apt.repo.utils;
 
+/**
+ * Commonly used hashes.
+ * 
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
+ */
 public enum Hashes {
   MD5("MD5"), SHA1("SHA-1"), SHA256("SHA-256");
 

@@ -20,6 +20,13 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.maven.plugin.MojoExecutionException;
 
+/**
+ * Providing utilities as static methods.
+ * 
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
+ */
 public class Utils {
   public static String getDigest(String hashType, File file) throws MojoExecutionException {
     try {

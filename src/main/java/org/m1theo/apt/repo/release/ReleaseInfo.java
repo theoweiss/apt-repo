@@ -12,6 +12,13 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.m1theo.apt.repo.utils.DefaultHashes;
 import org.m1theo.apt.repo.utils.Hashes;
 
+/**
+ * Models an Release file entry.
+ * 
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
+ */
 public class ReleaseInfo {
   private String md5hash;
   private String sha1hash;

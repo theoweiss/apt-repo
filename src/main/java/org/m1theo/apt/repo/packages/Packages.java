@@ -10,6 +10,13 @@ package org.m1theo.apt.repo.packages;
 
 import java.util.ArrayList;
 
+/**
+ * A model the Packages file.
+ * 
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
+ */
 public class Packages {
   private ArrayList<PackageEntry> packages = new ArrayList<PackageEntry>();
 

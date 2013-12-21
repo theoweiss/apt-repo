@@ -43,7 +43,9 @@ import org.m1theo.apt.repo.utils.Utils;
 /**
  * Goal which creates an apt repository.
  * 
- * @author theo@m1theo.org
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
  */
 @Mojo(name = "apt-repo", defaultPhase = LifecyclePhase.PACKAGE)
 public class AptRepoMojo extends AbstractMojo {

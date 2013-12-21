@@ -23,6 +23,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * A model for the Release file.
+ * 
+ * @author Theo Weiss
+ * @since 0.1.0
+ * 
+ */
 public class Release {
   String date;
   List<ReleaseInfo> infos = new ArrayList<ReleaseInfo>();
