@@ -105,7 +105,7 @@ public class AptRepoMojo extends AbstractMojo {
             control_tgz =
                 new ArchiveStreamFactory().createArchiveInputStream("tar", gzipInputStream);
             while ((control_entry = (TarArchiveEntry) control_tgz.getNextEntry()) != null) {
-              System.out.println("control entry: " + control_entry.getName());
+              getLog().debug("control entry: " + control_entry.getName());
               if (control_entry.getName().equals(CONTROL_FILE_NAME)) {
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 IOUtils.copy(control_tgz, outputStream);
