@@ -1,13 +1,16 @@
 apt-repo
 ========
 
-A maven plugin to create an apt repository.
+A maven plugin to create an apt repository for your java artifacts.
 
 This plugin turns your maven build for deb files into an apt-repository.
 
-It is meant to be used in conjunction with plugins like "jdeb", which generate deb files from 
-your artifacts. apt-repo will generate an apt Release and Packages.gz file for these deb files. 
-Therefore the apt command will recognize your maven build as a valid repo.
+It is meant to be used in conjunction with plugins like "jdeb", which generate deb files for 
+your artifacts.
+apt-repo generates an apt repository in "flat repository format".
+An apt "Release" and "Packages.gz" file will be placed into the directory containing the deb files.
+Therefore the apt command will recognize your deb files - build by maven - as a valid repository.
+
 Add the plugin to your pom.xml link this:
 ```
  <build>
@@ -30,9 +33,11 @@ Add the plugin to your pom.xml link this:
 ```
 If you use jdeb make sure that the jdeb plugin is executed before apt-repo. 
 Normally this could be achieved by registering it prior to the apt-repo plugin in the plugins order.
-The plugin will find all deb files in your ${project.build.directory} and will 
+
+The apt-repo plugin will find all deb files in your ${project.build.directory} and will 
 generate a file named "Release" and a file named 
 "Packages.gz" in the ${project.build.directory}.
+
 Add something like this to your apt sources.list:
 ```
 deb http://192.168.1.100:8000/${my.project.dir}/target/ /
