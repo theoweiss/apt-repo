@@ -53,25 +53,20 @@ public class AptRepoMojo extends AbstractMojo {
   private static final String PACKAGES_GZ = "Packages.gz";
   private static final String FAILED_TO_CREATE_APT_REPO = "Failed to create apt-repo: ";
   private static final String CONTROL_FILE_NAME = "./control";
+  private BufferedWriter packagesWriter;
 
   /**
    * Location of the deb files.
    */
-  @Parameter(defaultValue = "${project.build.directory}", property = "apt-repo.debFilesDir", required = true)
-  private File debFilesDir;
-
-  @Parameter(defaultValue = "${project.build.directory}", property = "apt-repo.distsDir", required = true)
-  private File distsDir;
-  private BufferedWriter packagesWriter;
+  @Parameter(defaultValue = "${project.build.directory}", property = "apt-repo.debDir", required = true)
+  private File debDir;
 
   public void execute() throws MojoExecutionException {
-    if (!debFilesDir.exists()) {
-      throw new MojoExecutionException(String.format("debFilesDir %s does not exist.", debFilesDir));
+    getLog().info("**** debDir: " + debDir);
+    if (!debDir.exists()) {
+      throw new MojoExecutionException(String.format("debFilesDir %s does not exist.", debDir));
     }
-    if (!distsDir.exists()) {
-      distsDir.mkdirs();
-    }
-    File[] files = debFilesDir.listFiles(new FileFilter() {
+    File[] files = debDir.listFiles(new FileFilter() {
 
       public boolean accept(File pathname) {
         if (pathname.getName().endsWith(".deb")) {
@@ -134,7 +129,7 @@ public class AptRepoMojo extends AbstractMojo {
       }
     }
     try {
-      File packagesFile = new File(distsDir, PACKAGES_GZ);
+      File packagesFile = new File(debDir, PACKAGES_GZ);
       packagesWriter =
           new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(
               packagesFile))));
@@ -144,7 +139,7 @@ public class AptRepoMojo extends AbstractMojo {
       ReleaseInfo pinfo = new ReleaseInfo(PACKAGES_GZ, packagesFile.length(), hashes);
       Release release = new Release();
       release.addInfo(pinfo);
-      FileUtils.fileWrite(new File(distsDir, RELEASE), release.toString());
+      FileUtils.fileWrite(new File(debDir, RELEASE), release.toString());
     } catch (IOException e) {
       throw new MojoExecutionException("writing files failed", e);
     } finally {
