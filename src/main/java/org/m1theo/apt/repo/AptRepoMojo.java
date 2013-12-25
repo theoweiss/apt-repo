@@ -62,7 +62,7 @@ public class AptRepoMojo extends AbstractMojo {
   private File debDir;
 
   public void execute() throws MojoExecutionException {
-    getLog().info("**** debDir: " + debDir);
+    getLog().info("debDir: " + debDir);
     if (!debDir.exists()) {
       throw new MojoExecutionException(String.format("debFilesDir %s does not exist.", debDir));
     }
