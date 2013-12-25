@@ -1,0 +1,9 @@
+Package: [[name]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: jdk (>= 1.5)
+Maintainer: theo
+Description: it
+Distribution: development
