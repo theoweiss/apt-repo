@@ -44,3 +44,12 @@ deb http://192.168.1.100:8000/${my.project.dir}/target/ /
 ```
 Now check with "apt-get update" if apt recognizes your new apt repository.
 
+apt-repo supports the configuration option "debDir" to override the default deb files location:
+```
+...
+ <configuration>
+  <debDir>${project.build.directory}/deb</debDir>
+ </configuration>
+...
+```
+
