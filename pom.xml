@@ -1,16 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
  <modelVersion>4.0.0</modelVersion>
 
  <groupId>org.m1theo</groupId>
  <artifactId>apt-repo</artifactId>
- <version>0.1.0-SNAPSHOT</version>
+ <version>0.1.0</version>
  <packaging>maven-plugin</packaging>
 
  <name>apt-repo Maven Plugin</name>
 
  <description>This plugin turns your maven build for deb files into an apt-repository. 
-It is meant to be used in conjunction with plugins like &quot;jdeb&quot;, which generate deb files from 
+It is meant to be used in conjunction with plugins like "jdeb", which generate deb files from 
 your artifacts. apt-repo will generate an apt Release and Packages.gz file for these deb files. 
 Therefore the apt command will recognize your maven build as a valid repo.</description>
 
