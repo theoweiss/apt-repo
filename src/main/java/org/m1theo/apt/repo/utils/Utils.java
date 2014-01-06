@@ -16,9 +16,14 @@ import java.io.IOException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 
 /**
  * Providing utilities as static methods.
@@ -87,4 +92,43 @@ public class Utils {
       }
       return h;
   }
+
+  /**
+   * Collects all artifacts of the given type.
+   * 
+   * @param project The maven project which should be used.
+   * @param type The file type which should be collected.
+   * @return A collection of all artifacts with the given type.
+   */
+  @SuppressWarnings("unchecked")
+  public static Collection<Artifact> getAllArtifacts4Type(MavenProject project, String type,
+      Boolean aggregate) {
+    ArrayList<Artifact> artifacts = new ArrayList<Artifact>();
+    List<MavenProject> modules = project.getCollectedProjects();
+    modules.add(project);
+    for (MavenProject module : modules) {
+      addDebArtifact(module.getArtifact(), artifacts, type);
+      for (Object artifact : module.getArtifacts()) {
+        if (artifact instanceof Artifact) {
+          addDebArtifact((Artifact) artifact, artifacts, type);
+        }
+      }
+      for (Object artifact : module.getAttachedArtifacts()) {
+        if (artifact instanceof Artifact) {
+          addDebArtifact((Artifact) artifact, artifacts, type);
+        }
+      }
+    }
+    if (project.hasParent() && aggregate) {
+      artifacts.addAll(getAllArtifacts4Type(project.getParent(), type, aggregate));
+    }
+    return artifacts;
+  }
+
+  private static void addDebArtifact(Artifact artifact, ArrayList<Artifact> artifacts, String type) {
+    if (artifact.getType().equals(type)) {
+      artifacts.add(artifact);
+    }
+  }
+
 }

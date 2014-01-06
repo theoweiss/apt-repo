@@ -48,6 +48,7 @@ Therefore the apt command will recognize your maven build as a valid repo.</desc
 
  <properties>
   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <mavenVersion>2.2.1</mavenVersion>
  </properties>
 
  <dependencies>
@@ -83,6 +84,11 @@ Therefore the apt command will recognize your maven build as a valid repo.</desc
    <artifactId>commons-codec</artifactId>
    <version>1.2</version>
   </dependency>
+   <dependency>
+    <groupId>org.apache.maven</groupId>
+     <artifactId>maven-project</artifactId>
+     <version>${mavenVersion}</version>
+   </dependency>
  </dependencies>
 
  <build>

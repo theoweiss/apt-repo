@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.Collection;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -26,11 +27,15 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.util.FileUtils;
 import org.m1theo.apt.repo.packages.PackageEntry;
 import org.m1theo.apt.repo.packages.Packages;
@@ -55,21 +60,63 @@ public class AptRepoMojo extends AbstractMojo {
   private static final String CONTROL_FILE_NAME = "./control";
   private BufferedWriter packagesWriter;
 
+  @Component
+  private MavenProjectHelper projectHelper;
+
+  @Component
+  MavenProject project;
+
   /**
-   * Location of the deb files.
+   * Location of the apt repository.
    */
-  @Parameter(defaultValue = "${project.build.directory}", property = "apt-repo.debDir", required = true)
-  private File debDir;
+  @Parameter(defaultValue = "${project.build.directory}/apt-repo", property = "apt-repo.repoDir", required = true)
+  private File repoDir;
+
+  /**
+   * File type of the deb files.
+   */
+  @Parameter(defaultValue = "deb", property = "apt-repo.type", required = true)
+  private String type;
+
+  /**
+   * Boolean option whether to aggregate the artifacts of all sub modules of the project
+   */
+  @Parameter(defaultValue = "true", property = "apt-repo.aggregate")
+  private Boolean aggregate;
+
+  /**
+   * Boolean option whether to attach the artifact to the project
+   */
+  @Parameter(defaultValue = "true")
+  private Boolean attach;
+
+  /**
+   * The classifier of attached artifacts.
+   */
+  @Parameter(defaultValue = "apt-repo", property = "apt-repo.classifier")
+  private String classifier;
 
   public void execute() throws MojoExecutionException {
-    getLog().info("debDir: " + debDir);
-    if (!debDir.exists()) {
-      throw new MojoExecutionException(String.format("debFilesDir %s does not exist.", debDir));
+    getLog().info("repo dir: " + repoDir.getPath());
+    if (!repoDir.exists()) {
+      repoDir.mkdirs();
     }
-    File[] files = debDir.listFiles(new FileFilter() {
+    Collection<Artifact> artifacts = Utils.getAllArtifacts4Type(project, type, aggregate);
+    for (Artifact artifact : artifacts) {
+      getLog().debug("Artifact: " + artifact);
+      getLog().debug("Artifact type: " + artifact.getType());
+      try {
+        FileUtils.copyFileToDirectory(artifact.getFile(), repoDir);
+      } catch (IOException e) {
+        getLog().error(FAILED_TO_CREATE_APT_REPO, e);
+        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO, e);
+      }
+    }
+    File[] files = repoDir.listFiles(new FileFilter() {
+      private String ext = "." + type;
 
       public boolean accept(File pathname) {
-        if (pathname.getName().endsWith(".deb")) {
+        if (pathname.getName().endsWith(ext)) {
           return true;
         }
         return false;
@@ -117,6 +164,11 @@ public class AptRepoMojo extends AbstractMojo {
         }
         debStream.close();
         packages.addPackageEntry(packageEntry);
+        if (attach) {
+          getLog().info("Attaching file: " + file);
+          projectHelper.attachArtifact(project, type, file.getName(), file);
+          projectHelper.attachArtifact(project, file, fileName);
+        }
       } catch (FileNotFoundException e) {
         getLog().error(FAILED_TO_CREATE_APT_REPO, e);
         throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO, e);
@@ -129,7 +181,7 @@ public class AptRepoMojo extends AbstractMojo {
       }
     }
     try {
-      File packagesFile = new File(debDir, PACKAGES_GZ);
+      File packagesFile = new File(repoDir, PACKAGES_GZ);
       packagesWriter =
           new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(
               packagesFile))));
@@ -139,7 +191,13 @@ public class AptRepoMojo extends AbstractMojo {
       ReleaseInfo pinfo = new ReleaseInfo(PACKAGES_GZ, packagesFile.length(), hashes);
       Release release = new Release();
       release.addInfo(pinfo);
-      FileUtils.fileWrite(new File(debDir, RELEASE), release.toString());
+      final File releaseFile = new File(repoDir, RELEASE);
+      FileUtils.fileWrite(releaseFile, release.toString());
+      if (attach) {
+        getLog().info("Attaching created apt-repo files: " + releaseFile + ", " + packagesFile);
+        projectHelper.attachArtifact(project, "gz", "Packages", packagesFile);
+        projectHelper.attachArtifact(project, "Release-File", "Release", packagesFile);
+      }
     } catch (IOException e) {
       throw new MojoExecutionException("writing files failed", e);
     } finally {
