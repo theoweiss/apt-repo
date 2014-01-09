@@ -19,7 +19,7 @@ Add the plugin to your pom.xml link this:
       <plugin>
         <artifactId>apt-repo</artifactId>
         <groupId>org.m1theo</groupId>
-        <version>0.0.1</version>
+        <version>0.2.1</version>
         <executions>
           <execution>
             <phase>package</phase>
