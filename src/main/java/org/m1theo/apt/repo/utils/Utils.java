@@ -18,7 +18,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.maven.artifact.Artifact;
@@ -103,9 +105,13 @@ public class Utils {
   @SuppressWarnings("unchecked")
   public static Collection<Artifact> getAllArtifacts4Type(MavenProject project, String type,
       Boolean aggregate) {
-    ArrayList<Artifact> artifacts = new ArrayList<Artifact>();
-    List<MavenProject> modules = project.getCollectedProjects();
+    final Set<Artifact> artifacts = new LinkedHashSet<Artifact>();
+    List<MavenProject> modules = new ArrayList<MavenProject>();
     modules.add(project);
+    List<MavenProject> collectedProjects = project.getCollectedProjects();
+    if (collectedProjects != null) {
+      modules.addAll(collectedProjects);
+    }
     for (MavenProject module : modules) {
       addDebArtifact(module.getArtifact(), artifacts, type);
       for (Object artifact : module.getArtifacts()) {
@@ -125,10 +131,159 @@ public class Utils {
     return artifacts;
   }
 
-  private static void addDebArtifact(Artifact artifact, ArrayList<Artifact> artifacts, String type) {
+  private static void addDebArtifact(Artifact artifact, Set<Artifact> artifacts, String type) {
     if (artifact.getType().equals(type)) {
       artifacts.add(artifact);
     }
   }
+
+  // public static Set<Artifact> getDebArtifacts(final MavenProject project,
+  // final List<MavenProject> reactorProjects, final String type, final Boolean aggregate,
+  // final Log logger) throws IOException {
+  // final Set<Artifact> artifacts = new LinkedHashSet<Artifact>();
+  // Set<MavenProject> modules = getProjectModules(project, reactorProjects, aggregate, logger);
+  // for (MavenProject module : modules) {
+  // addDebArtifact(module.getArtifact(), artifacts, type);
+  // for (Object artifact : module.getArtifacts()) {
+  // if (artifact instanceof Artifact) {
+  // addDebArtifact((Artifact) artifact, artifacts, type);
+  // }
+  // }
+  // for (Object artifact : module.getAttachedArtifacts()) {
+  // if (artifact instanceof Artifact) {
+  // addDebArtifact((Artifact) artifact, artifacts, type);
+  // }
+  // }
+  // }
+  //
+  // return artifacts;
+  // }
+  //
+  // /**
+  // * Copied from org.apache.maven.plugin.assembly.utils.ProjectUtils
+  // *
+  // * @param project
+  // * @param reactorProjects
+  // * @param includeSubModules
+  // * @param logger
+  // * @return
+  // * @throws IOException
+  // */
+  // private static Set<MavenProject> getProjectModules(final MavenProject project,
+  // final List<MavenProject> reactorProjects, final boolean includeSubModules, final Log logger)
+  // throws IOException {
+  // final Set<MavenProject> singleParentSet = Collections.singleton(project);
+  //
+  // final Set<MavenProject> moduleCandidates = new LinkedHashSet<MavenProject>(reactorProjects);
+  //
+  // final Set<MavenProject> modules = new LinkedHashSet<MavenProject>();
+  //
+  // // we temporarily add the master project to the modules set, since this
+  // // set is pulling double duty as a set of
+  // // potential module parents in the tree rooted at the master
+  // // project...this allows us to use the same looping
+  // // algorithm below to discover both direct modules of the master project
+  // // AND modules of those direct modules.
+  // modules.add(project);
+  //
+  // int changed = 0;
+  //
+  // do {
+  // changed = 0;
+  //
+  // for (final Iterator<MavenProject> candidateIterator = moduleCandidates.iterator();
+  // candidateIterator
+  // .hasNext();) {
+  // final MavenProject moduleCandidate = candidateIterator.next();
+  //
+  // if (moduleCandidate.getFile() == null) {
+  // logger.warn("Cannot compute whether " + moduleCandidate.getId() + " is a module of: "
+  // + project.getId()
+  // + "; it does not have an associated POM file on the local filesystem.");
+  // continue;
+  // }
+  //
+  // Set<MavenProject> currentPotentialParents;
+  // if (includeSubModules) {
+  // currentPotentialParents = new LinkedHashSet<MavenProject>(modules);
+  // } else {
+  // currentPotentialParents = singleParentSet;
+  // }
+  //
+  // for (final Iterator<MavenProject> parentIterator = currentPotentialParents.iterator();
+  // parentIterator
+  // .hasNext();) {
+  // final MavenProject potentialParent = parentIterator.next();
+  //
+  // if (potentialParent.getFile() == null) {
+  // logger.warn("Cannot use: " + moduleCandidate.getId()
+  // + " as a potential module-parent while computing the module set for: "
+  // + project.getId()
+  // + "; it does not have an associated POM file on the local filesystem.");
+  // continue;
+  // }
+  //
+  // // if this parent has an entry for the module candidate in
+  // // the path adjustments map, it's a direct
+  // // module of that parent.
+  // if (projectContainsModule(potentialParent, moduleCandidate)) {
+  // // add the candidate to the list of modules (and
+  // // potential parents)
+  // modules.add(moduleCandidate);
+  //
+  // // remove the candidate from the candidate pool, because
+  // // it's been verified.
+  // candidateIterator.remove();
+  //
+  // // increment the change counter, to show that we
+  // // verified a new module on this pass.
+  // changed++;
+  // }
+  // }
+  // }
+  // } while (changed != 0);
+  //
+  // // remove the master project from the modules set, now that we're done
+  // // using it as a set of potential module
+  // // parents...
+  // // modules.remove(project);
+  //
+  // return modules;
+  // }
+  //
+  // private static boolean projectContainsModule(final MavenProject mainProject,
+  // final MavenProject moduleProject) throws IOException {
+  // @SuppressWarnings("unchecked")
+  // final List<String> modules = mainProject.getModules();
+  // final File basedir = mainProject.getBasedir();
+  //
+  // final File moduleFile = moduleProject.getFile().getCanonicalFile();
+  //
+  // File moduleBasedir = moduleProject.getBasedir();
+  //
+  // if (moduleBasedir == null) {
+  // if (moduleFile != null) {
+  // moduleBasedir = moduleFile.getParentFile();
+  // }
+  //
+  // if (moduleBasedir == null) {
+  // moduleBasedir = new File(".");
+  // }
+  // }
+  //
+  // moduleBasedir = moduleBasedir.getCanonicalFile();
+  //
+  // for (final Iterator<String> it = modules.iterator(); it.hasNext();) {
+  // final String moduleSubpath = it.next();
+  //
+  // final File moduleDir = new File(basedir, moduleSubpath).getCanonicalFile();
+  //
+  // if (moduleDir.equals(moduleFile) || moduleDir.equals(moduleBasedir)) {
+  // return true;
+  // }
+  // }
+  //
+  // return false;
+  // }
 
 }

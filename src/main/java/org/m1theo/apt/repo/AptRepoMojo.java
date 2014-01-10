@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -96,21 +97,33 @@ public class AptRepoMojo extends AbstractMojo {
   @Parameter(defaultValue = "apt-repo", property = "apt-repo.classifier")
   private String classifier;
 
+  /**
+   * Contains the full list of projects in the reactor.
+   */
+  @Parameter(defaultValue = "${reactorProjects}", required = true, readonly = true)
+  private List<MavenProject> reactorProjects;
+
+  public List<MavenProject> getReactorProjects() {
+    return reactorProjects;
+  }
+
   public void execute() throws MojoExecutionException {
     getLog().info("repo dir: " + repoDir.getPath());
     if (!repoDir.exists()) {
       repoDir.mkdirs();
     }
-    Collection<Artifact> artifacts = Utils.getAllArtifacts4Type(project, type, aggregate);
-    for (Artifact artifact : artifacts) {
-      getLog().debug("Artifact: " + artifact);
-      getLog().debug("Artifact type: " + artifact.getType());
-      try {
+    try {
+      Collection<Artifact> artifacts = Utils.getAllArtifacts4Type(project, type, aggregate);
+      // Collection<Artifact> artifacts =
+      // Utils.getDebArtifacts(project, reactorProjects, type, aggregate, getLog());
+      for (Artifact artifact : artifacts) {
+        getLog().debug("Artifact: " + artifact);
+        getLog().debug("Artifact type: " + artifact.getType());
         FileUtils.copyFileToDirectory(artifact.getFile(), repoDir);
-      } catch (IOException e) {
-        getLog().error(FAILED_TO_CREATE_APT_REPO, e);
-        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO, e);
       }
+    } catch (IOException e) {
+      getLog().error(FAILED_TO_CREATE_APT_REPO, e);
+      throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO, e);
     }
     File[] files = repoDir.listFiles(new FileFilter() {
       private String ext = "." + type;
@@ -193,11 +206,11 @@ public class AptRepoMojo extends AbstractMojo {
       release.addInfo(pinfo);
       final File releaseFile = new File(repoDir, RELEASE);
       FileUtils.fileWrite(releaseFile, release.toString());
-      if (attach) {
-        getLog().info("Attaching created apt-repo files: " + releaseFile + ", " + packagesFile);
-        projectHelper.attachArtifact(project, "gz", "Packages", packagesFile);
-        projectHelper.attachArtifact(project, "Release-File", "Release", packagesFile);
-      }
+      // if (attach) {
+      // getLog().info("Attaching created apt-repo files: " + releaseFile + ", " + packagesFile);
+      // projectHelper.attachArtifact(project, "gz", "Packages", packagesFile);
+      // projectHelper.attachArtifact(project, "Release-File", "Release", packagesFile);
+      // }
     } catch (IOException e) {
       throw new MojoExecutionException("writing files failed", e);
     } finally {
