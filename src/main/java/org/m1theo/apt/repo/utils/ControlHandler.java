@@ -8,6 +8,7 @@
 
 package org.m1theo.apt.repo.utils;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.m1theo.apt.repo.packages.PackageEntry;
 
 /**
@@ -24,9 +25,9 @@ public class ControlHandler {
     this.controlContent = controlContent.trim();
   }
 
-  private void parseControl(PackageEntry packageEntry) {
+  private void parseControl(PackageEntry packageEntry) throws MojoExecutionException {
     if (controlContent == null) {
-      throw new RuntimeException("no controlContent to parse");
+      throw new MojoExecutionException("no controlContent to parse");
     }
     String[] lines = controlContent.split("\\r?\\n");
     for (int i = 0; i < lines.length; i++) {
@@ -63,8 +64,9 @@ public class ControlHandler {
    * Parse the control file contents and update the {@link PackageEntry}.
    * 
    * @param packageEntry
+   * @throws MojoExecutionException
    */
-  public void handle(PackageEntry packageEntry) {
+  public void handle(PackageEntry packageEntry) throws MojoExecutionException {
     parseControl(packageEntry);
   }
 

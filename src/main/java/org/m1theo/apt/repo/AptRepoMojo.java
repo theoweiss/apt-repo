@@ -183,14 +183,17 @@ public class AptRepoMojo extends AbstractMojo {
           // projectHelper.attachArtifact(project, file, fileName);
         }
       } catch (FileNotFoundException e) {
-        getLog().error(FAILED_TO_CREATE_APT_REPO, e);
-        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO, e);
+        String msg = FAILED_TO_CREATE_APT_REPO + " " + file.getName();
+        getLog().error(msg, e);
+        throw new MojoExecutionException(msg, e);
       } catch (ArchiveException e) {
-        getLog().error(FAILED_TO_CREATE_APT_REPO, e);
-        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO, e);
+        String msg = FAILED_TO_CREATE_APT_REPO + " " + file.getName();
+        getLog().error(msg, e);
+        throw new MojoExecutionException(msg, e);
       } catch (IOException e) {
-        getLog().error(FAILED_TO_CREATE_APT_REPO, e);
-        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO, e);
+        String msg = FAILED_TO_CREATE_APT_REPO + " " + file.getName();
+        getLog().error(msg, e);
+        throw new MojoExecutionException(msg, e);
       }
     }
     try {
