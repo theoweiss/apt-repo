@@ -180,7 +180,7 @@ public class AptRepoMojo extends AbstractMojo {
         if (attach) {
           getLog().info("Attaching file: " + file);
           projectHelper.attachArtifact(project, type, file.getName(), file);
-          projectHelper.attachArtifact(project, file, fileName);
+          // projectHelper.attachArtifact(project, file, fileName);
         }
       } catch (FileNotFoundException e) {
         getLog().error(FAILED_TO_CREATE_APT_REPO, e);
