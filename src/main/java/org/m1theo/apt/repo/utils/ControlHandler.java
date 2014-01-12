@@ -25,6 +25,15 @@ public class ControlHandler {
     this.controlContent = controlContent.trim();
   }
 
+  /**
+   * Returns true if the controlContent is initialized.
+   * 
+   * @return boolean
+   */
+  public boolean hasControlContent() {
+    return controlContent != null ? true : false;
+  }
+
   private void parseControl(PackageEntry packageEntry) throws MojoExecutionException {
     if (controlContent == null) {
       throw new MojoExecutionException("no controlContent to parse");

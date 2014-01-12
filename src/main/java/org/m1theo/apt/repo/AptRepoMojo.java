@@ -168,10 +168,15 @@ public class AptRepoMojo extends AbstractMojo {
                 outputStream.close();
                 controlHandler.setControlContent(content_string);
                 getLog().debug("control cont: " + outputStream.toString("utf-8"));
+                break;
               }
             }
             control_tgz.close();
-            controlHandler.handle(packageEntry);
+            if (controlHandler.hasControlContent()) {
+              controlHandler.handle(packageEntry);
+            } else {
+              throw new MojoExecutionException("no control content found for: " + file.getName());
+            }
             break;
           }
         }
@@ -182,6 +187,10 @@ public class AptRepoMojo extends AbstractMojo {
           projectHelper.attachArtifact(project, type, file.getName(), file);
           // projectHelper.attachArtifact(project, file, fileName);
         }
+      } catch (MojoExecutionException e) {
+        String msg = FAILED_TO_CREATE_APT_REPO + " " + file.getName();
+        getLog().error(msg, e);
+        throw new MojoExecutionException(msg, e);
       } catch (FileNotFoundException e) {
         String msg = FAILED_TO_CREATE_APT_REPO + " " + file.getName();
         getLog().error(msg, e);
