@@ -77,7 +77,7 @@ Therefore the apt command will recognize your maven build as a valid repo.</desc
   <dependency>
    <groupId>org.apache.commons</groupId>
    <artifactId>commons-compress</artifactId>
-   <version>1.6</version>
+   <version>1.5</version>
   </dependency>
   <dependency>
    <groupId>commons-codec</groupId>
