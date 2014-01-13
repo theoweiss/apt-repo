@@ -3,7 +3,7 @@
 
  <groupId>org.m1theo</groupId>
  <artifactId>apt-repo</artifactId>
- <version>0.2.3-SNAPSHOT</version>
+ <version>0.2.3</version>
  <packaging>maven-plugin</packaging>
 
  <name>apt-repo Maven Plugin</name>
