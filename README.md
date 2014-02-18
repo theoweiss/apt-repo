@@ -1,4 +1,4 @@
-## Apt repository in Java
+## Apt repository build with Java
 
 A maven plugin to create an apt repository for your java artifacts.
 
