@@ -1,3 +1,4 @@
+[![Build Status](https://buildhive.cloudbees.com/job/theoweiss/job/apt-repo/badge/icon)](https://buildhive.cloudbees.com/job/theoweiss/job/apt-repo/)
 ## Apt repository build with Java
 
 A maven plugin to create an apt repository for your java artifacts.
