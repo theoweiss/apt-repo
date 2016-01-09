@@ -1,18 +1,17 @@
-[![Build Status](https://buildhive.cloudbees.com/job/theoweiss/job/apt-repo/badge/icon)](https://buildhive.cloudbees.com/job/theoweiss/job/apt-repo/)
 ## Apt repository build with Java
 
 A maven plugin to create an apt repository for your java artifacts.
 
-This plugin turns your maven build for deb files into an apt-repository. The plugin only needs java and 
+This plugin turns your maven build for deb files into an apt-repository. The plugin only needs java and
 does not require any native tools to be installed.
 
-It is meant to be used in conjunction with plugins like [jdeb](https://github.com/tcurdt/jdeb), 
+It is meant to be used in conjunction with plugins like [jdeb](https://github.com/tcurdt/jdeb),
 which create deb files for your artifacts.
 
 ### Explanation
 
 apt-repo generates an apt repository in "flat repository format".
-apt-repo will use all artifacts of type "deb" and will aggregate them to the "apt-repo" directory in 
+apt-repo will use all artifacts of type "deb" and will aggregate them to the "apt-repo" directory in
 your ${project.build.directory}.
 An apt "Release" and "Packages.gz" file will be placed into this directory.
 Therefore the apt command will recognize your deb files - build by maven - as a valid repository.
@@ -41,7 +40,7 @@ Add the plugin to your pom.xml link this:
     </plugins>
 </build>
 ```
-If you use apt-repo in conjunction with jdeb make sure that the jdeb plugin is executed before apt-repo. 
+If you use apt-repo in conjunction with jdeb make sure that the jdeb plugin is executed before apt-repo.
 Normally this could be achieved by registering it prior to the apt-repo plugin in the plugins order.
 
 Add something like this to your apt sources.list:
