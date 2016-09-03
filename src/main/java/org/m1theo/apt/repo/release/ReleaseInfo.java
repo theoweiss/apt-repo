@@ -23,6 +23,7 @@ public class ReleaseInfo {
   private String md5hash;
   private String sha1hash;
   private String sha256hash;
+  private String sha512hash;
   private Long size;
   private String name;
 
@@ -39,6 +40,9 @@ public class ReleaseInfo {
           break;
         case SHA256:
           this.setSha256hash(hashes.getSha256());
+          break;
+        case SHA512:
+          this.setSha512hash(hashes.getSha512());
           break;
         default:
           throw new MojoExecutionException("unknown hash type: " + hash.toString());
@@ -58,6 +62,10 @@ public class ReleaseInfo {
     this.sha256hash = sha256hash;
   }
 
+  public void setSha512hash(String sha512hash) {
+    this.sha512hash = sha512hash;
+  }
+
   public String getMd5hash() {
     return md5hash;
   }
@@ -68,6 +76,10 @@ public class ReleaseInfo {
 
   public String getSha256hash() {
     return sha256hash;
+  }
+
+  public String getSha512hash() {
+    return sha512hash;
   }
 
   public Long getSize() {

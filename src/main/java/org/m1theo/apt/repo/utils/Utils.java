@@ -8,24 +8,16 @@
 
 package org.m1theo.apt.repo.utils;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.commons.codec.binary.Hex;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
+
+import java.io.*;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 /**
  * Providing utilities as static methods.
@@ -87,6 +79,9 @@ public class Utils {
             break;
           case SHA256:
             h.setSha256(hex);
+            break;
+          case SHA512:
+            h.setSha512(hex);
             break;
           default:
             throw new MojoExecutionException("unknown hash type: " + hash.toString());

@@ -27,25 +27,30 @@ public class PackageEntry {
   private String md5sum;
   private String sha1;
   private String sha256;
+  private String sha512;
   private String section;
   private String priority;
   private String description;
 
-
   @Override
   public String toString() {
-    StringBuffer buffer = new StringBuffer();
-    buffer.append("Package: " + packageName + "\n" + "Version: " + version + "\n"
-        + "Architecture: " + architecture + "\n" + "Maintainer: " + maintainer + "\n"
-        + "Installed-Size: " + installed_size + "\n");
-    if (depends != null) {
-      buffer.append("Depends: " + depends + "\n");
-    }
-    buffer.append("Filename: " + filename + "\n" + "Size: " + size + "\n" + "MD5sum: " + md5sum
-        + "\n" + "SHA1: " + sha1 + "\n" + "SHA256: " + sha256 + "\n" + "Section: " + section + "\n"
-        + "Priority: " + priority + "\n" + "Description: " + description + "\n");
-
-    return buffer.toString();
+    return "PackageEntry{" +
+        "packageName='" + packageName + '\'' +
+        ", version='" + version + '\'' +
+        ", architecture='" + architecture + '\'' +
+        ", maintainer='" + maintainer + '\'' +
+        ", installed_size='" + installed_size + '\'' +
+        ", depends='" + depends + '\'' +
+        ", filename='" + filename + '\'' +
+        ", size=" + size +
+        ", md5sum='" + md5sum + '\'' +
+        ", sha1='" + sha1 + '\'' +
+        ", sha256='" + sha256 + '\'' +
+        ", sha512='" + sha512 + '\'' +
+        ", section='" + section + '\'' +
+        ", priority='" + priority + '\'' +
+        ", description='" + description + '\'' +
+        '}';
   }
 
   public void setPackageName(String packageName) {
@@ -86,6 +91,14 @@ public class PackageEntry {
 
   public void setSha1(String sha1) {
     this.sha1 = sha1;
+  }
+
+  public String getSha512() {
+    return sha512;
+  }
+
+  public void setSha512(String sha512) {
+    this.sha512 = sha512;
   }
 
   public void setSha256(String sha256) {

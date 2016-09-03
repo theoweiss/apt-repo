@@ -16,7 +16,7 @@ package org.m1theo.apt.repo.utils;
  * 
  */
 public enum Hashes {
-  MD5("MD5"), SHA1("SHA-1"), SHA256("SHA-256");
+  MD5("MD5"), SHA1("SHA-1"), SHA256("SHA-256"), SHA512("SHA-512");
 
   private String hString;
 

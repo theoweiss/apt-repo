@@ -8,20 +8,6 @@
 
 package org.m1theo.apt.repo;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.Collection;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
@@ -45,6 +31,12 @@ import org.m1theo.apt.repo.release.ReleaseInfo;
 import org.m1theo.apt.repo.utils.ControlHandler;
 import org.m1theo.apt.repo.utils.DefaultHashes;
 import org.m1theo.apt.repo.utils.Utils;
+
+import java.io.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Goal which creates an apt repository.
@@ -142,6 +134,7 @@ public class AptRepoMojo extends AbstractMojo {
       packageEntry.setSize(file.length());
       packageEntry.setSha1(Utils.getDigest("SHA-1", file));
       packageEntry.setSha256(Utils.getDigest("SHA-256", file));
+      packageEntry.setSha512(Utils.getDigest("SHA-512", file));
       packageEntry.setMd5sum(Utils.getDigest("MD5", file));
       // String fileName = debFilesDir.getName() + File.separator + file.getName();
       String fileName = file.getName();

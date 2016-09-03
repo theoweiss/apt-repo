@@ -31,3 +31,5 @@ local.properties
 .classpath
 
 .README.md.html
+.idea
+apt-repo.iml

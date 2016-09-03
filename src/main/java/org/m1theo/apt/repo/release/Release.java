@@ -66,6 +66,10 @@ public class Release {
     for (ReleaseInfo info : infos) {
       b.append(String.format(" %s  %s %s\n", info.getSha256hash(), info.getSize(), info.getName()));
     }
+    b.append("SHA512:\n");
+    for (ReleaseInfo info : infos) {
+      b.append(String.format(" %s  %s %s\n", info.getSha512hash(), info.getSize(), info.getName()));
+    }
     return b.toString();
   }
 
