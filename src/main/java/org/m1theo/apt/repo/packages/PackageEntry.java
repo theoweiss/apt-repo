@@ -32,25 +32,21 @@ public class PackageEntry {
   private String priority;
   private String description;
 
+
   @Override
   public String toString() {
-    return "PackageEntry{" +
-        "packageName='" + packageName + '\'' +
-        ", version='" + version + '\'' +
-        ", architecture='" + architecture + '\'' +
-        ", maintainer='" + maintainer + '\'' +
-        ", installed_size='" + installed_size + '\'' +
-        ", depends='" + depends + '\'' +
-        ", filename='" + filename + '\'' +
-        ", size=" + size +
-        ", md5sum='" + md5sum + '\'' +
-        ", sha1='" + sha1 + '\'' +
-        ", sha256='" + sha256 + '\'' +
-        ", sha512='" + sha512 + '\'' +
-        ", section='" + section + '\'' +
-        ", priority='" + priority + '\'' +
-        ", description='" + description + '\'' +
-        '}';
+    StringBuffer buffer = new StringBuffer();
+    buffer.append("Package: " + packageName + "\n" + "Version: " + version + "\n"
+        + "Architecture: " + architecture + "\n" + "Maintainer: " + maintainer + "\n"
+        + "Installed-Size: " + installed_size + "\n");
+    if (depends != null) {
+      buffer.append("Depends: " + depends + "\n");
+    }
+    buffer.append("Filename: " + filename + "\n" + "Size: " + size + "\n" + "MD5sum: " + md5sum
+        + "\n" + "SHA1: " + sha1 + "\n" + "SHA256: " + sha256 + "\n" + "SHA512: " + sha512 + "\n" + "Section: " + section + "\n"
+        + "Priority: " + priority + "\n" + "Description: " + description + "\n");
+
+    return buffer.toString();
   }
 
   public void setPackageName(String packageName) {

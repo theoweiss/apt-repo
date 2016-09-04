@@ -23,16 +23,20 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
+import org.bouncycastle.bcpg.HashAlgorithmTags;
+import org.bouncycastle.openpgp.PGPException;
 import org.codehaus.plexus.util.FileUtils;
 import org.m1theo.apt.repo.packages.PackageEntry;
 import org.m1theo.apt.repo.packages.Packages;
 import org.m1theo.apt.repo.release.Release;
 import org.m1theo.apt.repo.release.ReleaseInfo;
+import org.m1theo.apt.repo.signing.PGPSigner;
 import org.m1theo.apt.repo.utils.ControlHandler;
 import org.m1theo.apt.repo.utils.DefaultHashes;
 import org.m1theo.apt.repo.utils.Utils;
 
 import java.io.*;
+import java.security.GeneralSecurityException;
 import java.util.Collection;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
@@ -48,16 +52,51 @@ import java.util.zip.GZIPOutputStream;
 @Mojo(name = "apt-repo", defaultPhase = LifecyclePhase.PACKAGE)
 public class AptRepoMojo extends AbstractMojo {
   private static final String RELEASE = "Release";
+  private static final String RELEASEGPG = "Release.gpg";
+  private static final String INRELEASE = "InRelease";
+  private static final String PACKAGES = "Packages";
   private static final String PACKAGES_GZ = "Packages.gz";
   private static final String FAILED_TO_CREATE_APT_REPO = "Failed to create apt-repo: ";
   private static final String CONTROL_FILE_NAME = "./control";
-  private BufferedWriter packagesWriter;
 
   @Component
   private MavenProjectHelper projectHelper;
 
   @Component
   MavenProject project;
+
+  /**
+   * If sign is true then a gpg signature will be added to the repo. keyring, key and passphrase
+   * will also be required.
+   */
+  @Parameter(defaultValue = "false")
+  private boolean sign;
+
+  /**
+   * The keyring to use for signing operations.
+   */
+  @Parameter(readonly = true)
+  private File keyring;
+
+  /**
+   * The key to use for signing operations.
+   */
+  @Parameter
+  private String key;
+
+  /**
+   * The passphrase to use for signing operations.
+   */
+  @Parameter
+  private String passphrase;
+
+  /**
+   * The digest algorithm to use.
+   *
+   * @see org.bouncycastle.bcpg.HashAlgorithmTags
+   */
+  @Parameter(defaultValue = "SHA256")
+  private String digest;
 
   /**
    * Location of the apt repository.
@@ -100,6 +139,20 @@ public class AptRepoMojo extends AbstractMojo {
   }
 
   public void execute() throws MojoExecutionException {
+    if (sign){
+      if (keyring == null || !keyring.exists()){
+        getLog().error("Signing requested, but no or invalid keyrring supplied");
+        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO + "keyring invalid or missing");
+      }
+      if (key == null){
+        getLog().error("Signing requested, but no key supplied");
+        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO + "key is missing");
+      }
+      if (passphrase == null){
+        getLog().error("Signing requested, but no passphrase supplied");
+        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO + "passphrase is missing");
+      }
+    }
     getLog().info("repo dir: " + repoDir.getPath());
     if (!repoDir.exists()) {
       repoDir.mkdirs();
@@ -199,18 +252,35 @@ public class AptRepoMojo extends AbstractMojo {
       }
     }
     try {
-      File packagesFile = new File(repoDir, PACKAGES_GZ);
-      packagesWriter =
-          new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(
-              packagesFile))));
-      packagesWriter.write(packages.toString());
-      // FileUtils.fileWrite(packagesFile, packages.toString());
-      DefaultHashes hashes = Utils.getDefaultDigests(packagesFile);
-      ReleaseInfo pinfo = new ReleaseInfo(PACKAGES_GZ, packagesFile.length(), hashes);
       Release release = new Release();
+
+      File packagesFile = new File(repoDir, PACKAGES);
+      BufferedWriter packagesWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+          packagesFile)));
+      packagesWriter.write(packages.toString());
+      packagesWriter.close();
+      DefaultHashes hashes = Utils.getDefaultDigests(packagesFile);
+      ReleaseInfo pinfo = new ReleaseInfo(PACKAGES, packagesFile.length(), hashes);
       release.addInfo(pinfo);
+
+      File packagesGzFile = new File(repoDir, PACKAGES_GZ);
+      BufferedWriter packagesGzWriter = new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(
+          packagesGzFile))));
+      packagesGzWriter.write(packages.toString());
+      packagesGzWriter.close();
+      DefaultHashes gzHashes = Utils.getDefaultDigests(packagesGzFile);
+      ReleaseInfo gzPinfo = new ReleaseInfo(PACKAGES_GZ, packagesGzFile.length(), gzHashes);
+      release.addInfo(gzPinfo);
+
       final File releaseFile = new File(repoDir, RELEASE);
       FileUtils.fileWrite(releaseFile, release.toString());
+      if (sign){
+        final File inReleaseFile = new File(repoDir, INRELEASE);
+        final File releaseGpgFile = new File(repoDir, RELEASEGPG);
+        PGPSigner signer = new PGPSigner(new FileInputStream(keyring), key, passphrase, getDigestCode(digest));
+        signer.clearSignDetached(release.toString(), new FileOutputStream(releaseGpgFile));
+        signer.clearSign(release.toString(), new FileOutputStream(inReleaseFile));
+      }
       // if (attach) {
       // getLog().info("Attaching created apt-repo files: " + releaseFile + ", " + packagesFile);
       // projectHelper.attachArtifact(project, "gz", "Packages", packagesFile);
@@ -218,14 +288,32 @@ public class AptRepoMojo extends AbstractMojo {
       // }
     } catch (IOException e) {
       throw new MojoExecutionException("writing files failed", e);
-    } finally {
-      if (packagesWriter != null) {
-        try {
-          packagesWriter.close();
-        } catch (IOException e) {
-          throw new MojoExecutionException("writing files failed", e);
-        }
-      }
+    } catch (PGPException e) {
+      throw new MojoExecutionException("gpg signing failed",e);
+    } catch (GeneralSecurityException e) {
+      throw new MojoExecutionException("generating release failed",e);
     }
   }
+  static int getDigestCode(String digestName) throws MojoExecutionException {
+    if ("SHA1".equals(digestName)) {
+      return HashAlgorithmTags.SHA1;
+    } else if ("MD2".equals(digestName)) {
+      return HashAlgorithmTags.MD2;
+    } else if ("MD5".equals(digestName)) {
+      return HashAlgorithmTags.MD5;
+    } else if ("RIPEMD160".equals(digestName)) {
+      return HashAlgorithmTags.RIPEMD160;
+    } else if ("SHA256".equals(digestName)) {
+      return HashAlgorithmTags.SHA256;
+    } else if ("SHA384".equals(digestName)) {
+      return HashAlgorithmTags.SHA384;
+    } else if ("SHA512".equals(digestName)) {
+      return HashAlgorithmTags.SHA512;
+    } else if ("SHA224".equals(digestName)) {
+      return HashAlgorithmTags.SHA224;
+    } else {
+      throw new MojoExecutionException("unknown hash algorithm tag in digestName: " + digestName);
+    }
+  }
+
 }
