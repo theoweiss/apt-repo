@@ -69,33 +69,40 @@ public class AptRepoMojo extends AbstractMojo {
    * If sign is true then a gpg signature will be added to the repo. keyring, key and passphrase
    * will also be required.
    */
-  @Parameter(defaultValue = "false")
+  @Parameter(defaultValue = "false", property = "apt-repo.sign")
   private boolean sign;
 
   /**
    * The keyring to use for signing operations.
    */
-  @Parameter(readonly = true)
+  @Parameter(readonly = true, property = "apt-repo.keyring")
   private File keyring;
 
   /**
    * The key to use for signing operations.
    */
-  @Parameter
+  @Parameter(property = "apt-repo.key")
   private String key;
 
   /**
    * The passphrase to use for signing operations.
    */
-  @Parameter
+  @Parameter(property = "apt-repo.passphrase")
   private String passphrase;
+
+  /**
+   * A file containg the passphrase to use for signing operations.
+   * The passphrase must be in the first line of the file.
+   */
+  @Parameter(readonly = true, property = "apt-repo.passphrase-file")
+  private File passphraseFile;
 
   /**
    * The digest algorithm to use.
    *
    * @see org.bouncycastle.bcpg.HashAlgorithmTags
    */
-  @Parameter(defaultValue = "SHA256")
+  @Parameter(defaultValue = "SHA256", property = "apt-repo.digest")
   private String digest;
 
   /**
@@ -148,9 +155,13 @@ public class AptRepoMojo extends AbstractMojo {
         getLog().error("Signing requested, but no key supplied");
         throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO + "key is missing");
       }
-      if (passphrase == null){
-        getLog().error("Signing requested, but no passphrase supplied");
-        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO + "passphrase is missing");
+      if (passphrase == null && passphraseFile == null){
+        getLog().error("Signing requested, but no passphrase or passphrase file supplied");
+        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO + "passphrase or passphrase file must be specified");
+      }
+      if (passphraseFile != null && ! passphraseFile.exists()){
+        getLog().error("Signing requested, passphrase file does not exist: " + passphraseFile.getAbsolutePath());
+        throw new MojoExecutionException(FAILED_TO_CREATE_APT_REPO + "passphrase file does not exist " + passphraseFile.getAbsolutePath());
       }
     }
     getLog().info("repo dir: " + repoDir.getPath());
@@ -275,6 +286,12 @@ public class AptRepoMojo extends AbstractMojo {
       final File releaseFile = new File(repoDir, RELEASE);
       FileUtils.fileWrite(releaseFile, release.toString());
       if (sign){
+        if (passphraseFile != null){
+          getLog().debug("passphrase file will be used " + passphraseFile.getAbsolutePath());
+          BufferedReader pwReader = new BufferedReader(new FileReader(passphraseFile));
+          passphrase = pwReader.readLine();
+          pwReader.close();
+        }
         final File inReleaseFile = new File(repoDir, INRELEASE);
         final File releaseGpgFile = new File(repoDir, RELEASEGPG);
         PGPSigner signer = new PGPSigner(new FileInputStream(keyring), key, passphrase, getDigestCode(digest));
