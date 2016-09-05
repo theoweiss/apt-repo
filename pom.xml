@@ -22,11 +22,11 @@ Therefore the apt command will recognize your maven build as a valid repo.</desc
   </license>
  </licenses>
 
-  <!--parent>
+  <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
     <version>7</version>
-  </parent-->
+  </parent>
 
  <scm>
   <connection>scm:git:git://github.com/theoweiss/apt-repo.git</connection>
